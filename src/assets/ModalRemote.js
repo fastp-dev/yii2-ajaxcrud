@@ -200,12 +200,46 @@ function ModalRemote(modalId) {
      * When remote sends error response
      * @param {string} response
      */
-    function errorRemoteResponse(response) {
-        this.setTitle(response.status + response.statusText);
-        this.setContent(response.responseText);
-        this.addFooterButton('Close', 'button', 'btn btn-default', function (button, event) {
+    function successRemoteResponse(response) {
+        // Reload datatable if response contain forceReload field
+        if (response.forceReload !== undefined && response.forceReload) {
+            if (response.forceReload == 'true') {
+                // Backwards compatible reload of fixed crud-datatable-pjax
+                $.pjax.reload({container: '#crud-datatable-pjax'});
+            } else {
+                var settings = {container: response.forceReload};
+                if (!jQuery.isEmptyObject(response.pjaxSettings)) {
+                    jQuery.extend(settings, response.pjaxSettings)
+                }
+
+                $.pjax.reload(settings);
+            }
+        }
+
+        // Close modal if response contains forceClose field
+        if (response.forceClose !== undefined && response.forceClose) {
             this.hide();
-        })
+            return;
+        }
+
+        if (response.size !== undefined)
+            this.setSize(response.size);
+
+        if (response.title !== undefined)
+            this.setTitle(response.title);
+
+        if (response.content !== undefined)
+            this.setContent(response.content);
+
+        if (response.footer !== undefined)
+            this.setFooter(response.footer);
+
+        if ($(this.content).find("form")[0] !== undefined) {
+            this.setupFormSubmit(
+                $(this.content).find("form")[0],
+                $(this.footer).find('[type="submit"]')[0]
+            );
+        }
     }
 
     /**
