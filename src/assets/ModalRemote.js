@@ -200,8 +200,20 @@ function ModalRemote(modalId) {
      * When remote sends error response
      * @param {string} response
      */
+    function errorRemoteResponse(response) {
+        this.setTitle(response.status + response.statusText);
+        this.setContent(response.responseText);
+        this.addFooterButton('Close', 'button', 'btn btn-default', function (button, event) {
+            this.hide();
+        })
+    }
+
+    /**
+     * When remote sends success response
+     * @param {string} response
+     */
     function successRemoteResponse(response) {
-        // Reload datatable if response contain forceReload field
+
         if (response.forceReload !== undefined && response.forceReload) {
             if (response.forceReload == 'true') {
                 // Backwards compatible reload of fixed crud-datatable-pjax
@@ -241,25 +253,6 @@ function ModalRemote(modalId) {
             );
         }
     }
-
-    /**
-     * When remote sends success response
-     * @param {string} response
-     */
-    // Reload datatable if response contain forceReload field
-        if (response.forceReload !== undefined && response.forceReload) {
-            if (response.forceReload == 'true') {
-                // Backwards compatible reload of fixed crud-datatable-pjax
-                $.pjax.reload({container: '#crud-datatable-pjax'});
-            } else {
-                var settings = {container: response.forceReload};
-                if(!jQuery.isEmptyObject(response.pjaxSettings)){
-                    jQuery.extend(settings, response.pjaxSettings)
-                }
-
-                $.pjax.reload(settings);
-            }
-        }
 
     /**
      * Prepare submit button when modal has form
